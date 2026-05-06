@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-1">Admin Dashboard</h4>
+<p class="text-muted mb-4">System overview and management</p>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="stat-card" style="background:linear-gradient(135deg,#028090,#02c39a)">
+    <div class="fs-2 fw-bold">{{ users|length }}</div><div class="small">Total Users</div>
+  </div></div>
+  <div class="col-md-3"><div class="stat-card" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+    <div class="fs-2 fw-bold">{{ doctors|length }}</div><div class="small">Doctors</div>
+  </div></div>
+  <div class="col-md-3"><div class="stat-card" style="background:linear-gradient(135deg,#f093fb,#f5576c)">
+    <div class="fs-2 fw-bold">{{ appts|length }}</div><div class="small">Appointments</div>
+  </div></div>
+  <div class="col-md-3"><div class="stat-card" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">
+    <div class="fs-2 fw-bold">{{ records|length }}</div><div class="small">AI Predictions</div>
+  </div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-header py-3"><h6 class="mb-0"><i class="fas fa-users me-2"></i>All Users</h6></div>
+      <div class="card-body p-0">
+        <table class="table table-sm table-hover mb-0">
+          <thead class="table-light"><tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td>{{ u.id }}</td>
+              <td class="fw-semibold">{{ u.name }}</td>
+              <td class="small text-muted">{{ u.email }}</td>
+              <td><span class="badge {% if u.role=='admin' %}bg-danger{% elif u.role=='doctor' %}bg-primary{% else %}bg-success{% endif %}">{{ u.role }}</span></td>
+              <td class="small">{{ u.created_at.strftime('%d %b %Y') }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    <div class="card mb-3">
+      <div class="card-header py-3"><h6 class="mb-0"><i class="fas fa-user-md me-2"></i>Add New Doctor</h6></div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('add_doctor') }}">
+          <div class="mb-2">
+            <input type="text" name="name" class="form-control form-control-sm" placeholder="Doctor Name" required/>
+          </div>
+          <div class="mb-2">
+            <input type="email" name="email" class="form-control form-control-sm" placeholder="Email" required/>
+          </div>
+          <div class="mb-2">
+            <input type="text" name="specialization" class="form-control form-control-sm" placeholder="Specialization" required/>
+          </div>
+          <button type="submit" class="btn btn-teal btn-sm w-100">Add Doctor</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header py-3"><h6 class="mb-0"><i class="fas fa-calendar me-2"></i>Recent Appointments</h6></div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+          <thead class="table-light"><tr><th>Patient</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for a in appts[-5:]|reverse %}
+            <tr>
+              <td>User #{{ a.user_id }}</td>
+              <td class="small">{{ a.date }}</td>
+              <td><span class="badge {% if a.status=='Confirmed' %}bg-success{% elif a.status=='Cancelled' %}bg-danger{% else %}bg-warning text-dark{% endif %} small">{{ a.status }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

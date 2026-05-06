@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block title %}Symptom Checker{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-1">AI Symptom Checker</h4>
+<p class="text-muted mb-4">Enter your symptoms to get AI-powered disease predictions</p>
+
+<div class="row g-3">
+  <div class="col-md-5">
+    <div class="card">
+      <div class="card-header py-3">
+        <h6 class="mb-0"><i class="fas fa-keyboard me-2"></i>Enter Symptoms</h6>
+      </div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Describe your symptoms</label>
+            <div class="position-relative">
+              <textarea id="symptom-input" name="symptoms" rows="5" class="form-control"
+                placeholder="e.g. fever, headache, body ache, cough, fatigue..." required></textarea>
+              <div id="autocomplete-suggestions" class="position-absolute bg-white border rounded shadow-sm" 
+                   style="display:none; top:100%; left:0; right:0; max-height:200px; overflow-y:auto; z-index:1000; margin-top:2px;">
+              </div>
+            </div>
+            <small class="text-muted d-block mt-2">Separate symptoms with commas or describe naturally</small>
+            <small class="text-success d-block"><i class="fas fa-lightbulb me-1"></i>Tip: Start typing to see suggestions</small>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold d-flex justify-content-between align-items-center">
+              <span>Common Symptoms (click to add)</span>
+              <small class="text-muted fw-normal">{{ selected_symptoms_count|default(0) }} selected</small>
+            </label>
+            <div id="symptom-chips" class="d-flex flex-wrap gap-1">
+              {% for s in ['Fever','Cough','Headache','Fatigue','Body Ache','Nausea','Vomiting',
+                           'Diarrhea','Rash','Joint Pain','Chest Pain','Shortness of Breath',
+                           'Dizziness','Sore Throat','Runny Nose','Sneezing','Itching','Sweating',
+                           'Chills','High BP','Numbness','Muscle Cramps','Memory Loss','Dry Skin',
+                           'Watery Eyes','Loss of Appetite','Weight Loss','Night Sweats','Back Pain',
+                           'Dark Urine','Yellow Skin','Frequent Urination','Blurred Vision','Anxiety'] %}
+              <span class="badge bg-light text-dark border symptom-chip" 
+                    style="cursor:pointer;padding:6px 10px;user-select:none;transition:all 0.2s;"
+                    title="Click to add '{{ s }}' to symptoms">{{ s }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div id="selected-symptoms" class="mb-3">
+            <label class="form-label fw-semibold">Selected Symptoms</label>
+            <div id="selected-tags" class="d-flex flex-wrap gap-2">
+              <small class="text-muted">No symptoms selected yet</small>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-teal w-100">
+            <i class="fas fa-brain me-2"></i>Analyse with AI
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-7">
+    {% if results %}
+    <div class="card">
+      <div class="card-header py-3">
+        <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>AI Prediction Results</h6>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-3">Top 3 probable conditions based on your symptoms:</p>
+        {% for r in results %}
+        <div class="mb-3 p-3 rounded" style="background:{% if loop.index0==0 %}#f0fdf4{% elif loop.index0==1 %}#fffbeb{% else %}#f0f9ff{% endif %}; border-left:4px solid {% if loop.index0==0 %}#22c55e{% elif loop.index0==1 %}#f59e0b{% else %}#60a5fa{% endif %}">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <span class="badge bg-dark me-2">#{{ loop.index0+1 }}</span>
+              <strong class="fs-6">{{ r.disease }}</strong>
+            </div>
+            <span class="badge badge-{{ r.severity|lower }} fs-6">{{ r.severity }} Risk</span>
+          </div>
+          <div class="mb-1">
+            <small class="text-muted">Confidence:</small>
+            <div class="progress mt-1" style="height:10px">
+              <div class="progress-bar {% if loop.index0==0 %}bg-success{% elif loop.index0==1 %}bg-warning{% else %}bg-info{% endif %}"
+                   style="width:{{ r.confidence }}%"></div>
+            </div>
+          </div>
+          <small class="fw-semibold">{{ r.confidence }}% confidence</small>
+        </div>
+        {% endfor %}
+
+        <div class="alert alert-warning small mt-3 mb-0">
+          <i class="fas fa-info-circle me-1"></i>
+          These results are AI-generated predictions for guidance only. Please consult a doctor for proper diagnosis.
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <a href="{{ url_for('appointments') }}" class="btn btn-sm btn-teal">
+            <i class="fas fa-calendar-check me-1"></i>Book Doctor
+          </a>
+          <a href="{{ url_for('chatbot') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-robot me-1"></i>Ask AI Chatbot
+          </a>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="card h-100 d-flex justify-content-center align-items-center" style="min-height:400px">
+      <div class="text-center text-muted p-4">
+        <i class="fas fa-stethoscope fa-4x mb-3 opacity-25"></i>
+        <h6>Enter your symptoms on the left</h6>
+        <p class="small">Our Random Forest ML model will predict the top 3 probable diseases with confidence scores.</p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+// All available symptoms list
+const allSymptoms = [
+  'fever', 'cough', 'fatigue', 'body ache', 'headache', 'nausea', 'vomiting',
+  'diarrhea', 'rash', 'joint pain', 'chills', 'sweating', 'runny nose',
+  'sore throat', 'sneezing', 'shortness of breath', 'chest pain', 'dizziness',
+  'frequent urination', 'thirst', 'blurred vision', 'high bp', 'itching',
+  'skin rash', 'watery eyes', 'stomach pain', 'yellow skin', 'dark urine',
+  'burning urination', 'swelling', 'stiffness', 'wheezing', 'chest tightness',
+  'mucus', 'chest congestion', 'light sensitivity', 'loss of appetite',
+  'weight loss', 'night sweats', 'back pain', 'anxiety', 'depression',
+  'insomnia', 'hair loss', 'dry skin', 'acne', 'bruising', 'bleeding gums',
+  'muscle cramps', 'numbness', 'tingling', 'memory loss', 'confusion'
+];
+
+const symptomInput = document.getElementById('symptom-input');
+const autocompleteSuggestions = document.getElementById('autocomplete-suggestions');
+const symptomChips = document.querySelectorAll('.symptom-chip');
+const selectedTags = document.getElementById('selected-tags');
+
+let selectedSymptoms = new Set();
+
+// Initialize selected symptoms from textarea value on page load
+function initializeFromTextarea() {
+  const textareaValue = symptomInput.value.trim();
+  if (textareaValue.length > 0) {
+    const symptoms = textareaValue.split(',').map(s => s.trim().toLowerCase()).filter(s => s.length > 0);
+    symptoms.forEach(symptom => selectedSymptoms.add(symptom));
+    updateSelectedTags();
+    updateChipStyles();
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initializeFromTextarea);
+
+// Chip click to add functionality
+symptomChips.forEach(chip => {
+  chip.addEventListener('click', function() {
+    const symptom = this.textContent.trim().toLowerCase();
+    if (selectedSymptoms.has(symptom)) {
+      selectedSymptoms.delete(symptom);
+      this.style.background = '';
+      this.style.color = '';
+      this.style.borderColor = '';
+    } else {
+      selectedSymptoms.add(symptom);
+      this.style.background = '#0d6efd';
+      this.style.color = 'white';
+      this.style.borderColor = '#0d6efd';
+    }
+    updateSelectedTags();
+    updateTextarea();
+  });
+});
+
+// Autocomplete suggestions
+symptomInput.addEventListener('input', function() {
+  const value = this.value.toLowerCase();
+  const lastCommaIndex = value.lastIndexOf(',');
+  const searchText = lastCommaIndex === -1 ? value : value.substring(lastCommaIndex + 1);
+  const trimmedSearch = searchText.trim();
+
+  if (trimmedSearch.length < 1) {
+    autocompleteSuggestions.style.display = 'none';
+    return;
+  }
+
+  const matches = allSymptoms.filter(s => 
+    s.includes(trimmedSearch) && !selectedSymptoms.has(s)
+  ).slice(0, 8);
+
+  if (matches.length === 0) {
+    autocompleteSuggestions.style.display = 'none';
+    return;
+  }
+
+  autocompleteSuggestions.innerHTML = matches.map(match => `
+    <div class="p-2 border-bottom suggestion-item" style="cursor:pointer;background:#f8f9fa;" 
+         onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
+      <small>${match}</small>
+    </div>
+  `).join('');
+
+  autocompleteSuggestions.style.display = 'block';
+
+  document.querySelectorAll('.suggestion-item').forEach(item => {
+    item.addEventListener('click', function() {
+      const symptom = this.textContent.trim();
+      addSymptomFromSuggestion(symptom);
+    });
+  });
+});
+
+function addSymptomFromSuggestion(symptom) {
+  selectedSymptoms.add(symptom);
+  symptomInput.value = '';
+  autocompleteSuggestions.style.display = 'none';
+  updateSelectedTags();
+  updateTextarea();
+  updateChipStyles();
+  symptomInput.focus();
+}
+
+function updateTextarea() {
+  const symptoms = Array.from(selectedSymptoms).join(', ');
+  symptomInput.value = symptoms;
+}
+
+function updateSelectedTags() {
+  if (selectedSymptoms.size === 0) {
+    selectedTags.innerHTML = '<small class="text-muted">No symptoms selected yet</small>';
+  } else {
+    selectedTags.innerHTML = Array.from(selectedSymptoms).map(symptom => `
+      <span class="badge bg-teal d-flex align-items-center gap-2" style="padding:6px 10px;">
+        ${symptom}
+        <i class="fas fa-times" style="cursor:pointer;" onclick="removeSymptom('${symptom}')"></i>
+      </span>
+    `).join('');
+  }
+}
+
+function removeSymptom(symptom) {
+  selectedSymptoms.delete(symptom);
+  updateSelectedTags();
+  updateTextarea();
+  updateChipStyles();
+}
+
+function updateChipStyles() {
+  symptomChips.forEach(chip => {
+    const symptom = chip.textContent.trim().toLowerCase();
+    if (selectedSymptoms.has(symptom)) {
+      chip.style.background = '#0d6efd';
+      chip.style.color = 'white';
+      chip.style.borderColor = '#0d6efd';
+    } else {
+      chip.style.background = '';
+      chip.style.color = '';
+      chip.style.borderColor = '';
+    }
+  });
+}
+
+// Close autocomplete when clicking outside
+document.addEventListener('click', function(event) {
+  if (!event.target.closest('#symptom-input') && !event.target.closest('#autocomplete-suggestions')) {
+    autocompleteSuggestions.style.display = 'none';
+  }
+});
+</script>
+{% endblock %}

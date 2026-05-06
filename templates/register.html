@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="login-container">
+  <div class="login-card" style="max-width: 450px;">
+    <div class="text-center mb-4">
+      <i class="fas fa-user-plus fa-3x login-icon" style="color:#028090"></i>
+      <h2 class="fw-bold mt-3">Create Account</h2>
+      <p class="text-muted mb-0">Join MedAI Today</p>
+    </div>
+
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input type="text" name="name" class="form-control" placeholder="Enter your full name" required/>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="you@example.com" required/>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" placeholder="Create a strong password" required/>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Register As</label>
+        <select name="role" class="form-select">
+          <option value="patient" selected>👤 Patient</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-teal w-100 py-2">
+        <i class="fas fa-user-check me-2"></i>Create Account
+      </button>
+    </form>
+
+    <hr style="opacity: 0.2;">
+
+    <p class="text-center mb-0 small">
+      Already have an account? <a href="{{ url_for('login') }}" style="color: var(--teal); text-decoration: none; font-weight: 600;">Sign In</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

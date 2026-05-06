@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-1">Welcome back, {{ session.user_name }} 👋</h4>
+<p class="text-muted mb-4">Your health overview</p>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#028090,#02c39a)">
+      <div class="fs-1 fw-bold">{{ history|length }}</div>
+      <div class="small opacity-75">Past Consultations</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+      <div class="fs-1 fw-bold"><i class="fas fa-robot"></i></div>
+      <div class="small opacity-75">AI Chatbot 24/7</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#f093fb,#f5576c)">
+      <div class="fs-1 fw-bold">85%+</div>
+      <div class="small opacity-75">ML Accuracy</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">
+      <div class="fs-1 fw-bold">3</div>
+      <div class="small opacity-75">Doctors Available</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header py-3">
+        <h6 class="mb-0"><i class="fas fa-history me-2"></i>Recent Consultations</h6>
+      </div>
+      <div class="card-body p-0">
+        {% if history %}
+        <table class="table table-hover mb-0">
+          <thead class="table-light"><tr>
+            <th>Date</th><th>Symptoms</th><th>Predicted Disease</th><th>Confidence</th><th>Severity</th>
+          </tr></thead>
+          <tbody>
+            {% for r in history %}
+            <tr>
+              <td class="small">{{ r.created_at.strftime('%d %b %Y') }}</td>
+              <td class="small text-muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.symptoms }}</td>
+              <td class="fw-semibold">{{ r.predicted_disease }}</td>
+              <td>{{ r.confidence_score }}%</td>
+              <td><span class="badge badge-{{ r.severity|lower }}">{{ r.severity }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="p-4 text-center text-muted">
+          <i class="fas fa-notes-medical fa-2x mb-2"></i>
+          <p>No consultations yet. Try the <a href="{{ url_for('predict') }}">Symptom Checker</a>.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header py-3"><h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6></div>
+      <div class="card-body d-grid gap-2">
+        <a href="{{ url_for('predict') }}" class="btn btn-teal">
+          <i class="fas fa-stethoscope me-2"></i>Check Symptoms</a>
+        <a href="{{ url_for('appointments') }}" class="btn btn-outline-primary">
+          <i class="fas fa-calendar-plus me-2"></i>Book Appointment</a>
+        <a href="{{ url_for('chatbot') }}" class="btn btn-outline-secondary">
+          <i class="fas fa-robot me-2"></i>Chat with AI</a>
+        <a href="{{ url_for('history') }}" class="btn btn-outline-info">
+          <i class="fas fa-file-medical me-2"></i>View Full History</a>
+      </div>
+    </div>
+    <div class="card mt-3 border-warning">
+      <div class="card-body">
+        <p class="small text-muted mb-0">
+          <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+          <strong>Disclaimer:</strong> MedAI predictions are for educational/guidance purposes only.
+          Always consult a qualified medical professional for diagnosis and treatment.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
