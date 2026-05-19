@@ -2,52 +2,120 @@
 {% block title %}AI Chatbot{% endblock %}
 {% block extra_css %}
 <style>
-  #chat-box { height: 420px; overflow-y: auto; background: #f8fafc; border-radius: 10px; padding: 16px; }
-  .msg { margin-bottom: 12px; }
-  .msg.user { text-align: right; }
-  .bubble { display: inline-block; padding: 10px 14px; border-radius: 14px; max-width: 75%; font-size: .93rem; }
-  .msg.user .bubble { background: #028090; color: #fff; border-radius: 14px 14px 4px 14px; }
-  .msg.bot  .bubble { background: #fff; color: #1e293b; border: 1px solid #e2e8f0; border-radius: 14px 14px 14px 4px; }
-  .typing { display: none; }
+  #chat-box { 
+    height: 480px; 
+    overflow-y: auto; 
+    background: linear-gradient(135deg, #f8fafc 0%, #e8f1f7 100%);
+    border-radius: 14px; 
+    padding: 20px; 
+    scroll-behavior: smooth;
+  }
+
+  .msg { 
+    margin-bottom: 16px; 
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .msg.user { 
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .bubble { 
+    display: inline-block; 
+    padding: 12px 16px; 
+    border-radius: 16px; 
+    max-width: 80%; 
+    font-size: 0.95rem;
+    word-wrap: break-word;
+    line-height: 1.5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .msg.user .bubble { 
+    background: linear-gradient(135deg, #028090 0%, #02c39a 100%);
+    color: #fff; 
+    border-radius: 16px 16px 4px 16px;
+  }
+
+  .msg.bot .bubble { 
+    background: #fff; 
+    color: #1e293b; 
+    border: 1px solid #e2e8f0;
+    border-radius: 16px 16px 16px 4px;
+  }
+
+  .typing { 
+    display: none;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 </style>
 {% endblock %}
 {% block content %}
-<h4 class="fw-bold mb-1">AI Health Chatbot</h4>
-<p class="text-muted mb-4">Get instant health guidance, 24/7</p>
+<div class="fade-in">
+  <div class="mb-5">
+    <h4 class="fw-bold mb-1"><i class="fas fa-robot me-2" style="color: var(--teal)"></i>AI Health Assistant</h4>
+    <p class="text-muted mb-0">Get instant health guidance and support, available 24/7</p>
+  </div>
 
-<div class="row">
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-header py-3 d-flex align-items-center gap-2">
-        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#028090,#02c39a);display:flex;align-items:center;justify-content:center">
-          <i class="fas fa-robot text-white"></i>
-        </div>
-        <div>
-          <div class="fw-bold text-white">MedAI Assistant</div>
-          <div class="small opacity-75">Online • Responds instantly</div>
-        </div>
-      </div>
-      <div class="card-body">
-        <div id="chat-box">
-          <div class="msg bot">
-            <div class="bubble">👋 Hello! I'm your MedAI health assistant. Ask me about symptoms, appointments, health tips, or how MedAI works!</div>
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header py-3 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #028090, #02c39a); display: flex; align-items: center; justify-content: center;">
+              <i class="fas fa-robot text-white" style="font-size: 1.2rem;"></i>
+            </div>
+            <div>
+              <div class="fw-bold small mb-0">MedAI Health Assistant</div>
+              <div class="small opacity-75">🟢 Online • Responds instantly</div>
+            </div>
           </div>
+          <div class="badge bg-success">Active</div>
         </div>
-        <div class="typing mt-2 text-muted small" id="typing"><i class="fas fa-circle-notch fa-spin me-1"></i>Assistant is typing...</div>
-        <div class="d-flex gap-2 mt-3">
-          <input type="text" id="user-input" class="form-control" placeholder="Type your health question..." />
-          <button onclick="sendMessage()" class="btn btn-teal px-4"><i class="fas fa-paper-plane"></i></button>
+        <div class="card-body">
+          <div id="chat-box">
+            <div class="msg bot">
+              <div class="bubble">
+                <div class="mb-2">👋 Welcome to MedAI Assistant!</div>
+                <div style="font-size: 0.9rem; opacity: 0.9;">I'm here to help with health questions, appointment booking, symptoms analysis, and more. Feel free to ask anything!</div>
+              </div>
+            </div>
+          </div>
+          <div class="typing mt-3 text-muted small" id="typing">
+            <i class="fas fa-circle-notch fa-spin me-1"></i>Assistant is typing...
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <input type="text" id="user-input" class="form-control" placeholder="Ask me anything about your health..." />
+            <button onclick="sendMessage()" class="btn btn-teal px-4" style="flex-shrink: 0;">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-header py-3"><h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Suggested Questions</h6></div>
-      <div class="card-body d-grid gap-2">
-        {% for q in ['How do I book an appointment?','I have fever and headache','What is MedAI?',
-                     'I have chest pain','Tips for diabetes management','How accurate is the ML model?',
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header py-3">
+          <h6 class="mb-0"><i class="fas fa-sparkles me-2"></i>Quick Questions</h6>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            {% for q in ['How do I book an appointment?','I have fever and headache','What is MedAI?',
+                         'I have chest pain','Tips for diabetes management','How accurate is the ML model?',
                      'I feel stressed','What are healthy eating tips?'] %}
         <button class="btn btn-outline-secondary text-start btn-sm" onclick="quickSend('{{ q }}')">{{ q }}</button>
         {% endfor %}

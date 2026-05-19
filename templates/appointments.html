@@ -1,94 +1,109 @@
 {% extends "base.html" %}
 {% block title %}Appointments{% endblock %}
 {% block content %}
-<h4 class="fw-bold mb-1">Book Appointment</h4>
-<p class="text-muted mb-4">Schedule a consultation with our doctors</p>
-
-<div class="row g-3">
-  <div class="col-md-5">
-    <div class="card">
-      <div class="card-header py-3"><h6 class="mb-0"><i class="fas fa-calendar-plus me-2"></i>New Appointment</h6></div>
-      <div class="card-body">
-        <form method="POST">
-          <div class="mb-3">
-            <label class="form-label">Select Doctor</label>
-            <select name="doctor_id" class="form-select" required>
-              <option value="">-- Choose a Doctor --</option>
-              {% for doc in doctors %}
-              <option value="{{ doc.doctor_id }}">{{ doc.name }} — {{ doc.specialization }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Date</label>
-            <input type="date" name="date" class="form-control" required/>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Time Slot</label>
-            <select name="time_slot" class="form-select" required>
-              <option value="">-- Select Time --</option>
-              {% for slot in ['09:00 AM','10:00 AM','11:00 AM','02:00 PM','03:00 PM','04:00 PM'] %}
-              <option>{{ slot }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <button type="submit" class="btn btn-teal w-100"><i class="fas fa-check-circle me-2"></i>Confirm Booking</button>
-        </form>
-      </div>
-    </div>
+<div class="fade-in">
+  <div class="mb-5">
+    <h4 class="fw-bold mb-1"><i class="fas fa-calendar me-2" style="color: var(--teal)"></i>Schedule Your Appointment</h4>
+    <p class="text-muted mb-0">Consult with our qualified medical professionals</p>
   </div>
 
-  <div class="col-md-7">
-    <div class="card">
-      <div class="card-header py-3"><h6 class="mb-0"><i class="fas fa-list me-2"></i>My Appointments</h6></div>
-      <div class="card-body p-0">
-        {% if my_appts %}
-        <table class="table table-hover mb-0">
-          <thead class="table-light"><tr>
-            <th>Doctor</th><th>Date</th><th>Time</th><th>Status</th>
-          </tr></thead>
-          <tbody>
-            {% for a in my_appts %}
-            {% set doc = doctors|selectattr('doctor_id','equalto',a.doctor_id)|first %}
-            <tr>
-              <td class="fw-semibold">{{ doc.name if doc else 'N/A' }}</td>
-              <td>{{ a.date }}</td>
-              <td>{{ a.time_slot }}</td>
-              <td>
-                <span class="badge {% if a.status=='Confirmed' %}bg-success{% elif a.status=='Cancelled' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
-                  {{ a.status }}
-                </span>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% else %}
-        <div class="text-center text-muted p-4">
-          <i class="fas fa-calendar-times fa-2x mb-2"></i>
-          <p>No appointments yet.</p>
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="card">
+        <div class="card-header py-3"><h6 class="mb-0"><i class="fas fa-calendar-plus me-2"></i>New Appointment</h6></div>
+        <div class="card-body">
+          <form method="POST">
+            <div class="mb-4">
+              <label class="form-label"><i class="fas fa-doctor me-2" style="color: var(--teal)"></i>Select Doctor</label>
+              <select name="doctor_id" class="form-select" required>
+                <option value="">-- Choose a Doctor --</option>
+                {% for doc in doctors %}
+                <option value="{{ doc.doctor_id }}">{{ doc.name }} — {{ doc.specialization }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-4">
+              <label class="form-label"><i class="fas fa-calendar me-2" style="color: var(--teal)"></i>Preferred Date</label>
+              <input type="date" name="date" class="form-control" required/>
+            </div>
+            <div class="mb-4">
+              <label class="form-label"><i class="fas fa-clock me-2" style="color: var(--teal)"></i>Time Slot</label>
+              <select name="time_slot" class="form-select" required>
+                <option value="">-- Select Time Slot --</option>
+                {% for slot in ['09:00 AM','10:00 AM','11:00 AM','02:00 PM','03:00 PM','04:00 PM'] %}
+                <option>{{ slot }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="btn btn-teal w-100 py-2 fw-bold"><i class="fas fa-check-circle me-2"></i>Confirm Booking</button>
+          </form>
         </div>
-        {% endif %}
       </div>
     </div>
 
-    <div class="row g-2 mt-1">
-      {% for doc in doctors %}
-      <div class="col-md-6">
-        <div class="card p-3">
-          <div class="d-flex align-items-center gap-3">
-            <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#028090,#02c39a);display:flex;align-items:center;justify-content:center">
-              <i class="fas fa-user-md text-white"></i>
-            </div>
-            <div>
-              <div class="fw-bold small">{{ doc.name }}</div>
-              <div class="text-muted" style="font-size:.8rem">{{ doc.specialization }}</div>
-              <span class="badge bg-success" style="font-size:.7rem">Available</span>
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center"><h6 class="mb-0"><i class="fas fa-list me-2"></i>My Appointments</h6><span class="badge bg-teal" style="background: var(--teal) !important;">{{ my_appts|length }}</span></div>
+        <div class="card-body p-0">
+          {% if my_appts %}
+          <div style="overflow-x: auto;">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th><i class="fas fa-user-doctor me-1"></i>Doctor</th>
+                  <th><i class="fas fa-calendar-alt me-1"></i>Date</th>
+                  <th><i class="fas fa-clock me-1"></i>Time</th>
+                  <th><i class="fas fa-info-circle me-1"></i>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for a in my_appts %}
+                {% set doc = doctors|selectattr('doctor_id','equalto',a.doctor_id)|first %}
+                <tr>
+                  <td class="fw-semibold">{{ doc.name if doc else 'N/A' }}</td>
+                  <td>{{ a.date }}</td>
+                  <td>{{ a.time_slot }}</td>
+                  <td>
+                    <span class="badge {% if a.status=='Confirmed' %}badge-success{% elif a.status=='Cancelled' %}bg-danger{% else %}badge-warning text-dark{% endif %}" style="{% if a.status=='Confirmed' %}background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46;{% endif %}">
+                      {{ a.status }}
+                    </span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center text-muted p-5">
+            <i class="fas fa-calendar-times fa-3x mb-3 opacity-25"></i>
+            <p class="mb-0">No appointments yet. Book your first consultation!</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Available Doctors -->
+      <h6 class="fw-bold mt-5 mb-3"><i class="fas fa-users-medical me-2" style="color: var(--teal)"></i>Available Doctors</h6>
+      <div class="row g-3">
+        {% for doc in doctors %}
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3">
+                <div style="width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, #028090, #02c39a); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                  <i class="fas fa-user-doctor"></i>
+                </div>
+                <div>
+                  <div class="fw-bold small">{{ doc.name }}</div>
+                  <div class="text-muted small">{{ doc.specialization }}</div>
+                  <span class="badge bg-success mt-1" style="font-size: 0.75rem;">📍 Available</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
   </div>
 </div>

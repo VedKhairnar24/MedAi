@@ -1,90 +1,148 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<h4 class="fw-bold mb-1">Welcome back, {{ session.user_name }} 👋</h4>
-<p class="text-muted mb-4">Your health overview</p>
+<div class="fade-in">
+  <div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+      <h4 class="fw-bold mb-1"><i class="fas fa-wave-square me-2" style="color: var(--teal)"></i>Welcome back, {{ session.user_name }}</h4>
+      <p class="text-muted mb-0">Your comprehensive health overview and insights</p>
+    </div>
+  </div>
 
-<div class="row g-3 mb-4">
-  <div class="col-md-3">
-    <div class="stat-card" style="background:linear-gradient(135deg,#028090,#02c39a)">
-      <div class="fs-1 fw-bold">{{ history|length }}</div>
-      <div class="small opacity-75">Past Consultations</div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="stat-card" style="background:linear-gradient(135deg,#667eea,#764ba2)">
-      <div class="fs-1 fw-bold"><i class="fas fa-robot"></i></div>
-      <div class="small opacity-75">AI Chatbot 24/7</div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="stat-card" style="background:linear-gradient(135deg,#f093fb,#f5576c)">
-      <div class="fs-1 fw-bold">85%+</div>
-      <div class="small opacity-75">ML Accuracy</div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="stat-card" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">
-      <div class="fs-1 fw-bold">3</div>
-      <div class="small opacity-75">Doctors Available</div>
-    </div>
-  </div>
-</div>
-
-<div class="row g-3">
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-header py-3">
-        <h6 class="mb-0"><i class="fas fa-history me-2"></i>Recent Consultations</h6>
-      </div>
-      <div class="card-body p-0">
-        {% if history %}
-        <table class="table table-hover mb-0">
-          <thead class="table-light"><tr>
-            <th>Date</th><th>Symptoms</th><th>Predicted Disease</th><th>Confidence</th><th>Severity</th>
-          </tr></thead>
-          <tbody>
-            {% for r in history %}
-            <tr>
-              <td class="small">{{ r.created_at.strftime('%d %b %Y') }}</td>
-              <td class="small text-muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.symptoms }}</td>
-              <td class="fw-semibold">{{ r.predicted_disease }}</td>
-              <td>{{ r.confidence_score }}%</td>
-              <td><span class="badge badge-{{ r.severity|lower }}">{{ r.severity }}</span></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% else %}
-        <div class="p-4 text-center text-muted">
-          <i class="fas fa-notes-medical fa-2x mb-2"></i>
-          <p>No consultations yet. Try the <a href="{{ url_for('predict') }}">Symptom Checker</a>.</p>
+  <!-- Stats Cards -->
+  <div class="row g-3 mb-5">
+    <div class="col-md-3 col-sm-6">
+      <div class="stat-card" style="background: linear-gradient(135deg, #028090 0%, #02c39a 100%);">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fs-2 fw-bold">{{ history|length }}</div>
+            <div class="small opacity-75 mt-1">Past Consultations</div>
+          </div>
+          <i class="fas fa-history fa-2x opacity-50"></i>
         </div>
-        {% endif %}
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fs-2 fw-bold"><i class="fas fa-robot"></i></div>
+            <div class="small opacity-75 mt-1">AI Chatbot</div>
+          </div>
+          <div class="badge bg-white text-dark">24/7</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fs-2 fw-bold">85%+</div>
+            <div class="small opacity-75 mt-1">ML Accuracy</div>
+          </div>
+          <i class="fas fa-check-circle fa-2x opacity-50"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fs-2 fw-bold">3+</div>
+            <div class="small opacity-75 mt-1">Doctors Available</div>
+          </div>
+          <i class="fas fa-stethoscope fa-2x opacity-50"></i>
+        </div>
       </div>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-header py-3"><h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6></div>
-      <div class="card-body d-grid gap-2">
-        <a href="{{ url_for('predict') }}" class="btn btn-teal">
-          <i class="fas fa-stethoscope me-2"></i>Check Symptoms</a>
-        <a href="{{ url_for('appointments') }}" class="btn btn-outline-primary">
-          <i class="fas fa-calendar-plus me-2"></i>Book Appointment</a>
-        <a href="{{ url_for('chatbot') }}" class="btn btn-outline-secondary">
-          <i class="fas fa-robot me-2"></i>Chat with AI</a>
-        <a href="{{ url_for('history') }}" class="btn btn-outline-info">
-          <i class="fas fa-file-medical me-2"></i>View Full History</a>
+
+  <!-- Main Content -->
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header py-3 d-flex align-items-center justify-content-between">
+          <h6 class="mb-0"><i class="fas fa-history me-2"></i>Recent Consultations</h6>
+          <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+        </div>
+        <div class="card-body p-0">
+          {% if history %}
+          <div style="overflow-x: auto;">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th><i class="fas fa-calendar-alt me-1"></i>Date</th>
+                  <th><i class="fas fa-symptoms me-1"></i>Symptoms</th>
+                  <th><i class="fas fa-disease me-1"></i>Disease</th>
+                  <th><i class="fas fa-chart-pie me-1"></i>Confidence</th>
+                  <th><i class="fas fa-exclamation me-1"></i>Severity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in history[:5] %}
+                <tr>
+                  <td class="fw-500">{{ r.created_at.strftime('%d %b %Y') }}</td>
+                  <td class="small text-muted" title="{{ r.symptoms }}">{{ r.symptoms[:30] }}{% if r.symptoms|length > 30 %}...{% endif %}</td>
+                  <td class="fw-semibold">{{ r.predicted_disease }}</td>
+                  <td>
+                    <div class="progress" style="width: 60px; height: 6px;">
+                      <div class="progress-bar" style="width: {{ r.confidence_score }}%"></div>
+                    </div>
+                    <small class="text-muted">{{ r.confidence_score }}%</small>
+                  </td>
+                  <td><span class="badge badge-{{ r.severity|lower }}">{{ r.severity }}</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="p-5 text-center text-muted">
+            <i class="fas fa-inbox fa-3x mb-3 opacity-25"></i>
+            <p class="mb-0">No consultations yet. Start with the <a href="{{ url_for('predict') }}" style="color: var(--teal); font-weight: 600;">Symptom Checker</a></p>
+          </div>
+          {% endif %}
+        </div>
       </div>
     </div>
-    <div class="card mt-3 border-warning">
-      <div class="card-body">
-        <p class="small text-muted mb-0">
-          <i class="fas fa-exclamation-triangle text-warning me-1"></i>
-          <strong>Disclaimer:</strong> MedAI predictions are for educational/guidance purposes only.
-          Always consult a qualified medical professional for diagnosis and treatment.
-        </p>
+
+    <div class="col-lg-4">
+      <!-- Quick Actions -->
+      <div class="card mb-4">
+        <div class="card-header py-3">
+          <h6 class="mb-0"><i class="fas fa-zap me-2"></i>Quick Actions</h6>
+        </div>
+        <div class="card-body d-grid gap-2">
+          <a href="{{ url_for('predict') }}" class="btn btn-teal btn-sm scale-on-hover shadow-on-hover">
+            <i class="fas fa-stethoscope me-2"></i>Check Symptoms</a>
+          <a href="{{ url_for('appointments') }}" class="btn btn-outline-secondary btn-sm scale-on-hover shadow-on-hover">
+            <i class="fas fa-calendar-plus me-2"></i>Book Appointment</a>
+          <a href="{{ url_for('chatbot') }}" class="btn btn-outline-secondary btn-sm scale-on-hover shadow-on-hover">
+            <i class="fas fa-robot me-2"></i>Chat with AI</a>
+          <a href="{{ url_for('history') }}" class="btn btn-outline-secondary btn-sm scale-on-hover shadow-on-hover">
+            <i class="fas fa-file-medical me-2"></i>Full History</a>
+        </div>
+      </div>
+
+      <!-- Health Tips -->
+      <div class="card">
+        <div class="card-header py-3">
+          <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Health Tip</h6>
+        </div>
+        <div class="card-body">
+          <div class="p-3 rounded" style="background: linear-gradient(135deg, rgba(2, 192, 154, 0.1) 0%, rgba(2, 128, 144, 0.05) 100%); border-left: 4px solid var(--teal);">
+            <p class="small mb-0">
+              <strong style="color: var(--teal);">💡 Daily Reminder:</strong><br>
+              Maintain regular health check-ups and don't delay seeking professional medical advice for serious symptoms.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="alert alert-warning mt-4 mb-0" style="border-radius: 12px;">
+        <i class="fas fa-shield-alt me-2"></i>
+        <strong>Important:</strong> MedAI provides AI-powered guidance for educational purposes only. Always consult qualified medical professionals for diagnosis and treatment.
       </div>
     </div>
   </div>

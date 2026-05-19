@@ -3,41 +3,48 @@
 {% block content %}
 <div class="login-container">
   <div class="login-card">
-    <div class="text-center mb-4">
-      <i class="fas fa-heartbeat fa-3x login-icon" style="color:#028090"></i>
-      <h2 class="fw-bold mt-3">MedAI</h2>
-      <p class="text-muted mb-0">Intelligent Health Assistant</p>
+    <div class="text-center mb-5">
+      <div class="mb-3">
+        <i class="fas fa-heartbeat fa-4x login-icon" style="color: var(--teal)"></i>
+      </div>
+      <h2 class="fw-bold mb-1">Welcome to MedAI</h2>
+      <p class="text-muted mb-0">Your Intelligent Health Companion</p>
     </div>
 
     <form method="POST">
       <div class="mb-3">
-        <label class="form-label">Email Address</label>
+        <label class="form-label"><i class="fas fa-envelope me-2" style="color: var(--teal)"></i>Email Address</label>
         <input type="email" name="email" class="form-control" placeholder="you@example.com" required/>
       </div>
-      <div class="mb-3">
-        <label class="form-label">Password</label>
-        <input type="password" name="password" class="form-control" required/>
+
+      <div class="mb-4">
+        <label class="form-label"><i class="fas fa-lock me-2" style="color: var(--teal)"></i>Password</label>
+        <input type="password" name="password" class="form-control" placeholder="••••••••" required/>
       </div>
-      <button type="submit" class="btn btn-teal w-100 py-2 mb-3">
+
+      <button type="submit" class="btn btn-teal w-100 py-2 fw-bold">
         <i class="fas fa-sign-in-alt me-2"></i>Sign In
       </button>
     </form>
 
-    <hr style="opacity: 0.2;">
+    <div style="position: relative; margin: 20px 0;">
+      <div style="position: absolute; left: 0; top: 50%; width: 100%; height: 1px; background: var(--border-light);"></div>
+      <div style="position: relative; text-align: center; background: var(--card-bg);"><span class="text-muted small px-2" style="font-size: 0.8rem;">OR</span></div>
+    </div>
 
     <p class="text-center mb-0 small">
-      New here? <a href="{{ url_for('register') }}" style="color: var(--teal); text-decoration: none; font-weight: 600;">Create account</a>
+      New here? <a href="{{ url_for('register') }}" style="color: var(--teal); text-decoration: none; font-weight: 700; transition: all 0.3s;">Create account</a>
     </p>
 
-    <div class="demo-credentials mt-3">
-      <p class="small fw-bold mb-2"><i class="fas fa-info-circle me-2" style="color: var(--teal);"></i>Demo Credentials:</p>
-      <div class="small mb-1">
-        <strong>Admin:</strong><br>
-        <code>admin@medai.com</code> / <code>admin123</code>
+    <div class="demo-credentials mt-4">
+      <p class="small fw-bold mb-3"><i class="fas fa-flask me-2" style="color: var(--teal);"></i>Try Demo Credentials:</p>
+      <div class="small mb-2" style="padding: 10px; background: rgba(2, 128, 144, 0.05); border-radius: 8px; border-left: 3px solid var(--teal);">
+        <strong style="color: var(--text-dark);">Admin</strong><br>
+        <code style="user-select: all;">admin@medai.com</code> / <code style="user-select: all;">admin123</code>
       </div>
-      <div class="small">
-        <strong>Doctor:</strong><br>
-        <code>priya@medai.com</code> / <code>Doctor@123</code>
+      <div class="small" style="padding: 10px; background: rgba(2, 128, 144, 0.05); border-radius: 8px; border-left: 3px solid var(--mint);">
+        <strong style="color: var(--text-dark);">Doctor</strong><br>
+        <code style="user-select: all;">priya@medai.com</code> / <code style="user-select: all;">Doctor@123</code>
       </div>
     </div>
   </div>

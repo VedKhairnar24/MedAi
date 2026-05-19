@@ -1,116 +1,138 @@
 {% extends "base.html" %}
 {% block title %}Symptom Checker{% endblock %}
 {% block content %}
-<h4 class="fw-bold mb-1">AI Symptom Checker</h4>
-<p class="text-muted mb-4">Enter your symptoms to get AI-powered disease predictions</p>
+<div class="fade-in">
+  <div class="mb-5">
+    <h4 class="fw-bold mb-1"><i class="fas fa-stethoscope me-2" style="color: var(--teal)"></i>AI-Powered Symptom Checker</h4>
+    <p class="text-muted mb-0">Advanced ML model to predict possible medical conditions based on your symptoms</p>
+  </div>
 
-<div class="row g-3">
-  <div class="col-md-5">
-    <div class="card">
-      <div class="card-header py-3">
-        <h6 class="mb-0"><i class="fas fa-keyboard me-2"></i>Enter Symptoms</h6>
-      </div>
-      <div class="card-body">
-        <form method="POST">
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Describe your symptoms</label>
-            <div class="position-relative">
-              <textarea id="symptom-input" name="symptoms" rows="5" class="form-control"
-                placeholder="e.g. fever, headache, body ache, cough, fatigue..." required></textarea>
-              <div id="autocomplete-suggestions" class="position-absolute bg-white border rounded shadow-sm" 
-                   style="display:none; top:100%; left:0; right:0; max-height:200px; overflow-y:auto; z-index:1000; margin-top:2px;">
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="card">
+        <div class="card-header py-3">
+          <h6 class="mb-0"><i class="fas fa-keyboard me-2"></i>Describe Your Symptoms</h6>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            <div class="mb-4">
+              <label class="form-label"><i class="fas fa-pen me-2" style="color: var(--teal)"></i>Your Symptoms</label>
+              <div class="position-relative">
+                <textarea id="symptom-input" name="symptoms" rows="5" class="form-control"
+                  placeholder="e.g. fever, headache, body ache, cough, fatigue..." required></textarea>
+                <div id="autocomplete-suggestions" class="position-absolute bg-white border rounded shadow-lg" 
+                     style="display:none; top:100%; left:0; right:0; max-height:200px; overflow-y:auto; z-index:1000; margin-top:8px;">
+                </div>
+              </div>
+              <div class="mt-2">
+                <small class="text-muted d-flex align-items-center"><i class="fas fa-info-circle me-1" style="color: var(--teal)"></i>Separate symptoms with commas or describe naturally</small>
+                <small class="text-success d-flex align-items-center mt-1"><i class="fas fa-lightbulb me-1"></i>Type to see suggestions</small>
               </div>
             </div>
-            <small class="text-muted d-block mt-2">Separate symptoms with commas or describe naturally</small>
-            <small class="text-success d-block"><i class="fas fa-lightbulb me-1"></i>Tip: Start typing to see suggestions</small>
-          </div>
 
-          <div class="mb-3">
-            <label class="form-label fw-semibold d-flex justify-content-between align-items-center">
-              <span>Common Symptoms (click to add)</span>
-              <small class="text-muted fw-normal">{{ selected_symptoms_count|default(0) }} selected</small>
-            </label>
-            <div id="symptom-chips" class="d-flex flex-wrap gap-1">
+            <div class="mb-4">
+              <label class="form-label d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-list-check me-2" style="color: var(--teal)"></i>Common Symptoms</span>
+                <span class="badge bg-teal" style="background: var(--teal) !important;">{{ selected_symptoms_count|default(0) }}</span>
+              </label>
+              <div id="symptom-chips" class="d-flex flex-wrap gap-2">
               {% for s in ['Fever','Cough','Headache','Fatigue','Body Ache','Nausea','Vomiting',
                            'Diarrhea','Rash','Joint Pain','Chest Pain','Shortness of Breath',
                            'Dizziness','Sore Throat','Runny Nose','Sneezing','Itching','Sweating',
                            'Chills','High BP','Numbness','Muscle Cramps','Memory Loss','Dry Skin',
                            'Watery Eyes','Loss of Appetite','Weight Loss','Night Sweats','Back Pain',
                            'Dark Urine','Yellow Skin','Frequent Urination','Blurred Vision','Anxiety'] %}
-              <span class="badge bg-light text-dark border symptom-chip" 
-                    style="cursor:pointer;padding:6px 10px;user-select:none;transition:all 0.2s;"
+              <span class="symptom-chip" 
                     title="Click to add '{{ s }}' to symptoms">{{ s }}</span>
               {% endfor %}
             </div>
-          </div>
-
-          <div id="selected-symptoms" class="mb-3">
-            <label class="form-label fw-semibold">Selected Symptoms</label>
-            <div id="selected-tags" class="d-flex flex-wrap gap-2">
-              <small class="text-muted">No symptoms selected yet</small>
+            <small class="text-muted d-block mt-2">Click chips to add symptoms</small>
             </div>
-          </div>
 
-          <button type="submit" class="btn btn-teal w-100">
-            <i class="fas fa-brain me-2"></i>Analyse with AI
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-7">
-    {% if results %}
-    <div class="card">
-      <div class="card-header py-3">
-        <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>AI Prediction Results</h6>
-      </div>
-      <div class="card-body">
-        <p class="text-muted small mb-3">Top 3 probable conditions based on your symptoms:</p>
-        {% for r in results %}
-        <div class="mb-3 p-3 rounded" style="background:{% if loop.index0==0 %}#f0fdf4{% elif loop.index0==1 %}#fffbeb{% else %}#f0f9ff{% endif %}; border-left:4px solid {% if loop.index0==0 %}#22c55e{% elif loop.index0==1 %}#f59e0b{% else %}#60a5fa{% endif %}">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <div>
-              <span class="badge bg-dark me-2">#{{ loop.index0+1 }}</span>
-              <strong class="fs-6">{{ r.disease }}</strong>
+            <div class="mb-4">
+              <label class="form-label"><i class="fas fa-tag me-2" style="color: var(--teal)"></i>Selected Tags</label>
+              <div id="selected-tags" class="d-flex flex-wrap gap-2 p-3 rounded" style="background: rgba(2, 192, 154, 0.05); min-height: 50px; align-content: flex-start;">
+                <small class="text-muted w-100">No symptoms added yet</small>
+              </div>
             </div>
-            <span class="badge badge-{{ r.severity|lower }} fs-6">{{ r.severity }} Risk</span>
-          </div>
-          <div class="mb-1">
-            <small class="text-muted">Confidence:</small>
-            <div class="progress mt-1" style="height:10px">
-              <div class="progress-bar {% if loop.index0==0 %}bg-success{% elif loop.index0==1 %}bg-warning{% else %}bg-info{% endif %}"
-                   style="width:{{ r.confidence }}%"></div>
-            </div>
-          </div>
-          <small class="fw-semibold">{{ r.confidence }}% confidence</small>
-        </div>
-        {% endfor %}
 
-        <div class="alert alert-warning small mt-3 mb-0">
-          <i class="fas fa-info-circle me-1"></i>
-          These results are AI-generated predictions for guidance only. Please consult a doctor for proper diagnosis.
-        </div>
-
-        <div class="d-flex gap-2 mt-3">
-          <a href="{{ url_for('appointments') }}" class="btn btn-sm btn-teal">
-            <i class="fas fa-calendar-check me-1"></i>Book Doctor
-          </a>
-          <a href="{{ url_for('chatbot') }}" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-robot me-1"></i>Ask AI Chatbot
-          </a>
+            <button type="submit" class="btn btn-teal w-100 py-2 fw-bold">
+              <i class="fas fa-brain me-2"></i>Analyze with AI
+            </button>
+          </form>
         </div>
       </div>
     </div>
-    {% else %}
-    <div class="card h-100 d-flex justify-content-center align-items-center" style="min-height:400px">
-      <div class="text-center text-muted p-4">
-        <i class="fas fa-stethoscope fa-4x mb-3 opacity-25"></i>
-        <h6>Enter your symptoms on the left</h6>
-        <p class="small">Our Random Forest ML model will predict the top 3 probable diseases with confidence scores.</p>
+
+    <div class="col-lg-7">
+      {% if results %}
+      <div class="card">
+        <div class="card-header py-3">
+          <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>AI Prediction Results</h6>
+        </div>
+        <div class="card-body">
+          <p class="text-muted small mb-4"><i class="fas fa-brain me-1" style="color: var(--teal)"></i>Top 3 probable conditions based on your symptoms:</p>
+          <div class="row g-3">
+            {% for r in results %}
+            <div class="col-12">
+              <div class="p-3 rounded" style="background: {% if loop.index0==0 %}linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%){% elif loop.index0==1 %}linear-gradient(135deg, #fef9c3 0%, #fef08a 100%){% else %}linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%){% endif %}; border-left: 4px solid {% if loop.index0==0 %}#10b981{% elif loop.index0==1 %}#f59e0b{% else %}#3b82f6{% endif %}; position: relative; overflow: hidden;">
+                <div class="position-relative" style="z-index: 1;">
+                  <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center gap-3">
+                      <span class="badge" style="background: {% if loop.index0==0 %}#10b981{% elif loop.index0==1 %}#f59e0b{% else %}#3b82f6{% endif %}; font-size: 1rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">#{{ loop.index0+1 }}</span>
+                      <div>
+                        <strong class="fs-6">{{ r.disease }}</strong><br>
+                        <small class="opacity-75">Medical Condition</small>
+                      </div>
+                    </div>
+                    <span class="badge badge-{{ r.severity|lower }}" style="font-size: 0.85rem;">{{ r.severity }} Risk</span>
+                  </div>
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <small class="fw-bold">Confidence Score</small>
+                      <small class="fw-bold">{{ r.confidence }}%</small>
+                    </div>
+                    <div class="progress" style="height: 12px;">
+                      <div class="progress-bar {% if loop.index0==0 %}bg-success{% elif loop.index0==1 %}bg-warning{% else %}bg-info{% endif %}"
+                           style="width: {{ r.confidence }}%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="alert alert-warning mt-4 mb-0" style="border-radius: 12px;">
+            <i class="fas fa-shield-alt me-2"></i>
+            <strong>Medical Disclaimer:</strong> These are AI-generated predictions for educational purposes only. Always consult a licensed healthcare provider for accurate diagnosis and treatment.
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <a href="{{ url_for('appointments') }}" class="btn btn-sm btn-teal scale-on-hover shadow-on-hover">
+              <i class="fas fa-calendar-check me-1"></i>Book Doctor
+            </a>
+            <a href="{{ url_for('chatbot') }}" class="btn btn-sm btn-outline-secondary scale-on-hover shadow-on-hover">
+              <i class="fas fa-robot me-1"></i>Ask AI Chatbot
+            </a>
+          </div>
+        </div>
       </div>
+      {% else %}
+      <div class="card" style="min-height: 450px;">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+          <div style="font-size: 5rem; color: rgba(2, 192, 154, 0.2); margin-bottom: 20px;">
+            <i class="fas fa-search"></i>
+          </div>
+          <h5 class="fw-bold text-muted mb-2">No Results Yet</h5>
+          <p class="text-muted mb-3">Enter your symptoms on the left to get AI-powered predictions</p>
+          <div class="p-3 rounded" style="background: rgba(2, 192, 154, 0.08); border-left: 4px solid var(--teal); max-width: 300px;">
+            <small class="text-muted"><strong style="color: var(--teal);">How it works:</strong><br>Our advanced ML model analyzes your symptoms and provides the top 3 probable medical conditions with confidence scores.</small>
+          </div>
+        </div>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
   </div>
 </div>
 {% endblock %}
