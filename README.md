@@ -140,4 +140,4 @@ MedAI is built for **academic/educational purposes**. It is NOT a substitute for
 
 ---
 
-*Academic Year: 2024–25 | Mini Project Submission*
+*Academic Year: 2025–26 | Mini Project Submission*
